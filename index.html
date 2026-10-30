@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>みくるのわたし軸チェック - あなたのコミュニケーションタイプ診断</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Zen Maru Gothic) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            pink: '#FF8DA1',
+                            lightPink: '#FFF0F3',
+                            yellow: '#FFDF00',
+                            blue: '#4A90E2',
+                            lightBlue: '#E6F0FA',
+                            purple: '#A855F7',
+                            text: '#333333',
+                            bg: '#FFF8F9'
+                        }
+                    },
+                    fontFamily: {
+                        maru: ['"Zen Maru Gothic"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Zen Maru Gothic', sans-serif;
+            background-color: #FFF8F9;
+            color: #333333;
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(255, 141, 161, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+        .btn-bounce {
+            transition: all 0.2s ease;
+        }
+        .btn-bounce:hover {
+            transform: translateY(-2px);
+        }
+        .btn-bounce:active {
+            transform: translateY(1px);
+        }
+        /* Custom progress bar transition */
+        .progress-bar-fill {
+            transition: width 0.4s ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-brand-pink selection:text-white">
+
+    <!-- ヘッダー -->
+    <header class="w-full bg-white/80 backdrop-blur-md border-b border-pink-100 sticky top-0 z-50">
+        <div class="max-w-xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl">🌸</span>
+                <span class="font-bold text-lg text-gray-800 tracking-wide">みくるの「わたし軸チェック」</span>
+            </div>
+            <span class="text-xs font-bold px-3 py-1 bg-pink-100 text-brand-pink rounded-full">いい子ちゃん卒業</span>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ領域 -->
+    <main class="flex-1 max-w-xl w-full mx-auto p-4 flex flex-col justify-center">
+
+        <!-- 1. トップ画面（スタート） -->
+        <div id="screen-start" class="bg-white rounded-3xl p-6 md:p-8 card-shadow border-2 border-pink-100 text-center space-y-6">
+            <h1 class="text-2xl md:text-3xl font-black text-gray-800 leading-snug pt-2">
+                あなたのコミュニケーション<br>
+                <span class="text-brand-pink underline decoration-wavy underline-offset-4">本当の「わたし軸」</span>はどこ？
+            </h1>
+
+            <!-- アバタイラスト表現 -->
+            <div class="w-32 h-32 mx-auto bg-pink-100 rounded-full flex items-center justify-center border-4 border-white shadow-inner relative overflow-hidden">
+                <span class="text-6xl animate-pulse">👧🏻</span>
+            </div>
+
+            <p class="text-gray-600 text-sm leading-relaxed text-left bg-pink-50/50 p-4 rounded-2xl border border-pink-100">
+                周りに合わせすぎて疲れちゃう？ それとも自分を通したくなる？<br>
+                日常の行動やシチュエーションに関する12の質問に答えて、あなたのコミュニケーションタイプを診断しましょう！
+            </p>
+
+            <div class="space-y-3 pt-2">
+                <button onclick="startQuiz()" class="w-full py-4 bg-gradient-to-r from-pink-400 to-rose-400 text-white font-bold text-lg rounded-2xl shadow-lg shadow-pink-200 btn-bounce flex items-center justify-center gap-2">
+                    <span>診断をはじめる（全12問）</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+                <p class="text-xs text-gray-400">※直感でサクサク答えてね！（所要時間 約2分）</p>
+            </div>
+        </div>
+
+        <!-- 2. 質問画面 -->
+        <div id="screen-quiz" class="hidden bg-white rounded-3xl p-6 md:p-8 card-shadow border-2 border-pink-100 space-y-6">
+            
+            <!-- プログレスバー -->
+            <div class="space-y-2">
+                <div class="flex justify-between text-xs font-bold text-gray-500">
+                    <span class="text-brand-pink font-bold">わたし軸チェック診断</span>
+                    <span id="quiz-progress-text">Q.1 / 12</span>
+                </div>
+                <div class="w-full bg-gray-100 h-3 rounded-full overflow-hidden">
+                    <div id="quiz-progress-bar" class="bg-brand-pink h-full w-0 progress-bar-fill rounded-full"></div>
+                </div>
+            </div>
+
+            <!-- 質問文 -->
+            <div class="py-4">
+                <span class="text-xs font-bold text-gray-400 block mb-1">日常のワンシーンでのあなたなら…</span>
+                <h2 id="quiz-question-text" class="text-lg md:text-xl font-bold text-gray-800 leading-snug">
+                    質問文がここに入ります
+                </h2>
+            </div>
+
+            <!-- 選択肢ボタン -->
+            <div id="quiz-options-container" class="space-y-3">
+                <!-- JavaScriptで動的生成 -->
+            </div>
+
+            <!-- 戻るボタン -->
+            <div class="pt-2 text-center">
+                <button id="btn-back" onclick="prevQuestion()" class="text-xs font-bold text-gray-400 hover:text-gray-600 px-4 py-2 rounded-lg">
+                    <i class="fa-solid fa-chevron-left mr-1"></i> 前の質問に戻る
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. ローディング・集計中画面 -->
+        <div id="screen-loading" class="hidden bg-white rounded-3xl p-8 card-shadow border-2 border-pink-100 text-center space-y-6 py-16">
+            <div class="w-20 h-20 mx-auto relative">
+                <div class="w-20 h-20 border-4 border-pink-200 border-t-brand-pink rounded-full animate-spin"></div>
+                <div class="absolute inset-0 flex items-center justify-center text-2xl">🌸</div>
+            </div>
+            <h2 class="text-xl font-bold text-gray-800">あなたの「わたし軸」を集計中…</h2>
+            <p class="text-sm text-gray-500">自己肯定感（自分軸の強さ）と<br>他尊心（他者を認める心）を測定しています</p>
+        </div>
+
+        <!-- 4. 診断結果画面 -->
+        <div id="screen-result" class="hidden space-y-6">
+            
+            <!-- メイン結果カード -->
+            <div id="result-card" class="bg-white rounded-3xl p-6 md:p-8 card-shadow border-2 border-pink-100 text-center space-y-6 relative overflow-hidden">
+                
+                <div class="inline-block bg-pink-100 text-brand-pink text-xs font-bold px-4 py-1.5 rounded-full">
+                    診断結果：あなたのわたし軸タイプ
+                </div>
+
+                <!-- タイプタイトル & キャッチ -->
+                <div>
+                    <h2 id="result-type-name" class="text-3xl font-black text-gray-800 tracking-wide mb-1">
+                        ○○タイプ
+                    </h2>
+                    <p id="result-type-catch" class="text-sm font-bold text-brand-pink">
+                        キャッチコピー
+                    </p>
+                </div>
+
+                <!-- 送信いただいたイラスト画像表示領域 -->
+                <div class="max-w-xs mx-auto rounded-2xl overflow-hidden shadow-md border-2 border-pink-100">
+                    <img id="result-type-image" src="" alt="タイプイラスト" class="w-full h-auto block" onerror="this.style.display='none'">
+                </div>
+
+                <!-- マトリクス位置説明 -->
+                <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-left text-xs space-y-2">
+                    <div class="font-bold text-gray-700 text-center border-b border-gray-200 pb-1 mb-2">
+                        📊 あなたの自己軸マトリクス
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-500">自己肯定感（他人に支配されない強さ）:</span>
+                        <span id="matrix-self-label" class="font-bold px-2 py-0.5 rounded bg-pink-100 text-brand-pink">高</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-500">他尊心（相手を認め尊重する心）:</span>
+                        <span id="matrix-other-label" class="font-bold px-2 py-0.5 rounded bg-blue-100 text-brand-blue">高</span>
+                    </div>
+                </div>
+
+                <!-- 性格・特徴解説 -->
+                <div class="text-left space-y-2">
+                    <h3 class="font-bold text-gray-800 flex items-center gap-2 border-l-4 border-brand-pink pl-3">
+                        <i class="fa-solid fa-heart text-brand-pink"></i> あなたはこんな性格の人！
+                    </h3>
+                    <p id="result-description" class="text-sm text-gray-600 leading-relaxed bg-pink-50/30 p-4 rounded-2xl border border-pink-100">
+                        解説テキスト
+                    </p>
+                </div>
+
+                <!-- 悩みがち・苦手なこと -->
+                <div class="text-left space-y-2">
+                    <h3 class="font-bold text-gray-800 flex items-center gap-2 border-l-4 border-yellow-400 pl-3">
+                        <i class="fa-solid fa-triangle-exclamation text-yellow-500"></i> コミュニケーションで悩みがちなこと・苦手意識
+                    </h3>
+                    <div id="result-struggles" class="text-sm text-gray-600 leading-relaxed bg-yellow-50/50 p-4 rounded-2xl border border-yellow-100 space-y-1">
+                        <!-- リスト形式で挿入 -->
+                    </div>
+                </div>
+
+                <!-- みくるからのメッセージ -->
+                <div class="text-left bg-gradient-to-br from-pink-500 to-rose-500 text-white p-5 rounded-2xl shadow-md space-y-2">
+                    <div class="flex items-center gap-2 font-bold text-sm text-pink-100 border-b border-pink-400 pb-2">
+                        <span>🌸 コミュニケーション講師みくるからのアドバイス</span>
+                    </div>
+                    <p id="result-mikuru-advice" class="text-sm leading-relaxed font-medium">
+                        みくるからのメッセージ
+                    </p>
+                </div>
+
+                <!-- アクションボタン群 -->
+                <div class="pt-4 space-y-3">
+                    <button onclick="shareResult()" class="w-full py-3.5 bg-black text-white font-bold text-sm rounded-xl shadow-md hover:bg-gray-800 transition flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-x-twitter"></i> 診断結果をシェアする
+                    </button>
+                    <button onclick="resetQuiz()" class="w-full py-3 bg-gray-100 text-gray-600 font-bold text-sm rounded-xl hover:bg-gray-200 transition">
+                        もう一度診断する
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- フッタープロファイル -->
+            <div class="bg-white rounded-3xl p-6 card-shadow border border-pink-100 text-center space-y-3">
+                <div class="w-16 h-16 mx-auto bg-pink-100 rounded-full flex items-center justify-center border-2 border-brand-pink text-2xl">
+                    👩🏻‍🏫
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-800">みくる</h4>
+                    <p class="text-xs text-gray-500">いい子ちゃん卒業サポーター / コミュニケーション講師</p>
+                </div>
+                <p class="text-xs text-gray-600 leading-relaxed">
+                    元・いい子ちゃんだからこそ分かる「他人軸で生きる苦しさ」。思考プロセスを理解して、自分らしく人と心地よく関われる「わたし軸」を手に入れましょう！
+                </p>
+                <div class="flex justify-center gap-3 pt-2">
+                    <a href="https://www.youtube.com/@%E3%81%BF%E3%81%8F%E3%82%8B%E3%81%AE%E3%81%A3%E3%81%A8%E3%81%BF%E3%82%8B%E3%81%8F" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-50 text-red-600 rounded-full text-xs font-bold hover:bg-red-100 transition flex items-center gap-1">
+                        <i class="fa-brands fa-youtube"></i> YouTube
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- フッター -->
+    <footer class="w-full py-4 text-center text-xs text-gray-400">
+        &copy; みくる わたし軸チェック - いい子ちゃん卒業サポーター
+    </footer>
+
+    <!-- JavaScript ロジック -->
+    <script>
+        /* ==========================================================================
+           1. 設問データ定義 (全12問・4択のグラデーション回答・行動重視)
+           - self: 自己肯定感（他人に支配されない強さ）スコア加算ロジック
+           - other: 他尊心（他者を認める心）スコア加算ロジック
+           ========================================================================== */
+        const questions = [
+            {
+                id: 1,
+                category: "self",
+                text: "人から「あなたって〇〇なところあるよね」と決めつけられたとき、どうなる？",
+                options: [
+                    { label: "「そう見えるのか…」と気になって頭から離れなくなる", score: 0 },
+                    { label: "相手の言葉が気になって自分の行動を見直してしまう", score: 0.33 },
+                    { label: "「いや、全然そんなことないけどな」と思う", score: 0.67 },
+                    { label: "「へー、そう見えるんだ」と思うだけで特に気にしない", score: 1 }
+                ]
+            },
+            {
+                id: 2,
+                category: "other",
+                text: "自分とは全く違う価値観や生き方の人と接するとき、どう感じる？",
+                options: [
+                    { label: "自分が正しいと思っていることは、自分のやり方の方が正しいと主張したい", score: 0 },
+                    { label: "合わない人とは関わらなければ問題ないと思う", score: 0.33 },
+                    { label: "「そういう生き方もあるんだな」と、相手のことも理解しようとする", score: 0.67 },
+                    { label: "相手の考えや背景に興味を持ち、尊重したいと思う", score: 1 }
+                ]
+            },
+            {
+                id: 3,
+                category: "self",
+                text: "職場の同僚や身近な人が不機嫌そうなとき、どうなる？",
+                options: [
+                    { label: "「何か気に触ることをしたかな…」と必要以上に様子を伺ってしまう", score: 0 },
+                    { label: "自分のせいで機嫌を損ねたのではないかと不安になる", score: 0.33 },
+                    { label: "「どうしたんですか？」と直接理由を聞く", score: 0.67 },
+                    { label: "相手の様子に関係なく、普段通り自分のペースで過ごす", score: 1 }
+                ]
+            },
+            {
+                id: 4,
+                category: "other",
+                text: "仕事や約束で誰かがミスをしたとき、どう感じる？",
+                options: [
+                    { label: "相手に対してイラっとしてしまう", score: 0 },
+                    { label: "相手のミスの原因を探して「なんでこうしなかったの？」と指摘したくなる", score: 0.33 },
+                    { label: "自分が出来るフォローを探さないと、と思う", score: 0.67 },
+                    { label: "「誰にでもミスはあるよね」とフラットに受け止める", score: 1 }
+                ]
+            },
+            {
+                id: 5,
+                category: "self",
+                text: "人から急に褒められたとき、どう反応する？",
+                options: [
+                    { label: "「そんなことないです！」と慌てて否定したり恐縮してしまう", score: 0 },
+                    { label: "期待に応えないといけないプレッシャーを感じてしまう", score: 0.33 },
+                    { label: "褒められたことについて会話を広げる", score: 0.67 },
+                    { label: "「ありがとうございます」と素直に受け取る（それ以上でもそれ以下でもない）", score: 1 }
+                ]
+            },
+            {
+                id: 6,
+                category: "other",
+                text: "誰かが悩みや愚痴を話してきたとき、どう接する？",
+                options: [
+                    { label: "すぐに解決策やアドバイスを伝えたくなる", score: 0 },
+                    { label: "「なんでこうしないんだろう」とモヤモヤしてしまう", score: 0.33 },
+                    { label: "相手がどうしてほしいかを探りながら聞く", score: 0.67 },
+                    { label: "相手の気持ちや苦しみに深く寄り添いながらじっくり聞く", score: 1 }
+                ]
+            },
+            {
+                id: 7,
+                category: "self",
+                text: "あまり乗り気ではない誘いやお願いをされたとき、どうなる？",
+                options: [
+                    { label: "断り切れずに引き受けてしまうことが多い", score: 0 },
+                    { label: "角が立たないように当たり障りなくその場をやり過ごす", score: 0.33 },
+                    { label: "あまり気を使わずに自分の都合でスマートに断ることができる", score: 0.67 },
+                    { label: "行きたくない・やりたくないときははっきりと自分の言葉で断る", score: 1 }
+                ]
+            },
+            {
+                id: 8,
+                category: "other",
+                text: "マナーやルールを守らない人を見たとき、どう感じる？",
+                options: [
+                    { label: "許せない気持ちになり、直接注意したくなる", score: 0 },
+                    { label: "信じられないと感じ、強い不快感を覚える", score: 0.33 },
+                    { label: "トラブルがその人のせいで起きていないかを探してしまう", score: 0.67 },
+                    { label: "自分に関係がないなら気にならない", score: 1 }
+                ]
+            },
+            {
+                id: 9,
+                category: "self",
+                text: "周りと自分で違う意見を持っているとき、どうする？",
+                options: [
+                    { label: "波風を立てないように多数派に合わせておく", score: 0 },
+                    { label: "自分の意見を飲み込んで周りの空気に合わせておく", score: 0.33 },
+                    { label: "言うタイミングは気にするが、自分の意見として言うべきことはちゃんと言う", score: 0.67 },
+                    { label: "自分の意見を堂々と伝える", score: 1 }
+                ]
+            },
+            {
+                id: 10,
+                category: "other",
+                text: "話し合いや議論で意見が真っ向から対立したとき、どうする？",
+                options: [
+                    { label: "どちらの意見が正しいかをはっきりさせたくなる", score: 0 },
+                    { label: "自分の意見を相手に分かってもらおうと懸命に説得する", score: 0.33 },
+                    { label: "相手がなぜそう思うのかの背景や理由を聞いてみる", score: 0.67 },
+                    { label: "お互いの意見の着地点や落としどころを探そうとする", score: 1 }
+                ]
+            },
+            {
+                id: 11,
+                category: "self",
+                text: "SNSの投稿やLINEを送ったあと、どうなる？",
+                options: [
+                    { label: "「変な言い方じゃなかったかな」と、何度も投稿を見返してしまう", score: 0 },
+                    { label: "相手の反応が気になってソワソワする", score: 0.33 },
+                    { label: "相手にもよるが、時間が経てば自然と気にならなくなる", score: 0.67 },
+                    { label: "送った後は特に気にせず忘れている", score: 1 }
+                ]
+            },
+            {
+                id: 12,
+                category: "other",
+                text: "人間関係や仕事において、正論やルールと「相手の気持ち」のどちらを重視する？",
+                options: [
+                    { label: "正論やルールが何よりも大事であり、正しくないことは正されるべきだ", score: 0 },
+                    { label: "上下関係を守ることが一番大切なので相手の立場によって変わる", score: 0.33 },
+                    { label: "ルールや正しさよりも、その人の事情や背景に寄り添いたい", score: 0.67 },
+                    { label: "正しさよりも、お互いが心地よくいられる関係性が一番大切だ", score: 1 }
+                ]
+            }
+        ];
+
+        /* ==========================================================================
+           2. 4つのタイプ定義（自己肯定感 × 他尊心）
+           ========================================================================== */
+        const typesData = {
+            satori: {
+                id: "satori",
+                name: "悟りタイプ",
+                catch: "「自分も大事、他人も大事」お互いの違いを愛せる心のしなやか人",
+                selfLabel: "高（他人に支配されない）",
+                otherLabel: "高（他者を尊重・許容する）",
+                image: "https://placehold.co/400x400/E8F5E9/2E7D32?text=%E6%82%9F%E3%82%8A%E3%83%81%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC", 
+                fallbackEmoji: "🌳",
+                description: "自分の軸をしっかり持ちながらも、他人の意見や価値観を尊重できるバランスのとれたタイプです。自分と違う意見に対しても「そういう考え方もあるんだな」とフラットに受け止められます。",
+                struggles: [
+                    "・周りが争っていると、双方の気持ちが分かるだけに挟まれやすい",
+                    "・達観しすぎていて「何を考えているか分からない」と言われることがある",
+                    "・無理に他人に干渉しないため、クールに見られがち"
+                ],
+                advice: "すでに自分の軸と他尊心の素晴らしいバランスをお持ちです！自分と相手の違いを楽しめる余裕を大切にしながら、困っている人には温かく手を差し伸べてあげてくださいね。"
+            },
+            wolf: {
+                id: "wolf",
+                name: "一匹オオカミタイプ",
+                catch: "「わたしはわたし」周りに流されない芯のある自由人",
+                selfLabel: "高（他人に支配されない）",
+                otherLabel: "低（境界線がはっきり）",
+                image: "https://placehold.co/400x400/ECEFF1/37474F?text=%E4%B8%80%E5%8C%B9%E3%82%AA%E3%82%AA%E3%82%AB%E3%83%9F", 
+                fallbackEmoji: "🐺",
+                description: "他人の評価や視線に左右されず、自分の価値観で生きられる強い軸の持ち主です。無駄な気遣いや話し合いに時間を費やすくらいなら、それぞれ自由にやればいいと考えています。",
+                struggles: [
+                    "・「頑固」「変人」と言われることがある",
+                    "・協調性を求められる集団行動や無駄なルールがとにかく苦手",
+                    "・他人の不平不満や甘えに対して「自分で解決すれば？」と厳しくなりがち"
+                ],
+                advice: "周りに流されないその強さは大きな武器です！ただ、人にはそれぞれのペースや悩みがあることも少しだけ頭の片隅に置いておくと、人間関係がもっとスムーズになりますよ。"
+            },
+            iiko: {
+                id: "iiko",
+                name: "いい子ちゃんタイプ",
+                catch: "「私がガマンすれば…」優しさゆえに自分を置き去りにしがち",
+                selfLabel: "低（他人の評価が気になる）",
+                otherLabel: "高（相手を優先してしまう）",
+                image: "https://placehold.co/400x400/FFF0F3/FF8DA1?text=%E3%81%84%E3%81%84%E5%AD%90%E3%81%A1%E3%82%83%E3%82%93", 
+                fallbackEmoji: "👧🏻",
+                description: "相手を想う気持ちがとても強く、平和主義で優しい人です。ですが「嫌われたくない」「良い人でいたい」という気持ちから、自分の本音を抑えて他人に合わせすぎてしまう傾向があります。",
+                struggles: [
+                    "・「NO」と言えず頼まれごとを引き受けてパンクする",
+                    "・他人の不機嫌を「自分のせいかも」と抱え込んで疲れる",
+                    "・自分の「本当にやりたいこと」「好きなこと」が分からなくなる"
+                ],
+                advice: "あなたの優しさは本当に素敵です。でも、まず一番大切にするべきなのは「あなた自身の気持ち」！相手の不機嫌は相手の課題です。少しずつ自分の心の声を聞いてあげましょうね。"
+            },
+            harinezumi: {
+                id: "harinezumi",
+                name: "ハリネズミタイプ",
+                catch: "「ちゃんと敬意を示して！」自分を守るためにトゲを出してしまう予防線タイプ",
+                selfLabel: "低（傷つきやすい）",
+                otherLabel: "低（防衛本能が強い）",
+                image: "https://placehold.co/400x400/FFF8E1/FF8F00?text=%E3%83%8F%E3%83%AA%E3%83%8D%E3%82%BA%E3%~", 
+                fallbackEmoji: "🦔",
+                description: "本当はとても繊細で傷つきやすいため、傷つく前に自分を守ろうと身構えてしまうタイプです。「正しくありたい」「不当に扱われたくない」という強い防衛心から、トゲのある態度をとってしまうことがあります。",
+                struggles: [
+                    "・他人の言動に過敏に反応してイライラや警戒心を抱きやすい",
+                    "・素直になれず、後から「なんであんな言い方しちゃったんだろう」と一人で反省する",
+                    "・上下関係やマナーに厳しくなり、周囲にピリピリ感が伝わってしまう"
+                ],
+                advice: "トゲを出してしまうのは、それだけあなたが自分を必死に守ろうとしてきた証拠です。でも、世の中は敵ばかりではありません。肩の力を抜いて、信頼できる人から少しずつ本音を見せてみてくださいね。"
+            }
+        };
+
+        /* ==========================================================================
+           3. 状態管理 & 進行制御ロジック
+           ========================================================================== */
+        let currentQuestionIndex = 0;
+        let answers = []; // 選択結果を保持
+
+        // 診断スタート
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            answers = [];
+            document.getElementById('screen-start').classList.add('hidden');
+            document.getElementById('screen-quiz').classList.remove('hidden');
+            showQuestion();
+        }
+
+        // 質問表示
+        function showQuestion() {
+            const q = questions[currentQuestionIndex];
+            
+            // プログレス表示更新
+            document.getElementById('quiz-progress-text').innerText = `Q.${currentQuestionIndex + 1} / ${questions.length}`;
+            const progressPercent = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('quiz-progress-bar').style.width = `${progressPercent}%`;
+
+            // 質問文更新
+            document.getElementById('quiz-question-text').innerText = q.text;
+
+            // 戻るボタンの制御
+            const btnBack = document.getElementById('btn-back');
+            if (currentQuestionIndex === 0) {
+                btnBack.classList.add('invisible');
+            } else {
+                btnBack.classList.remove('invisible');
+            }
+
+            // 選択肢ボタン生成
+            const container = document.getElementById('quiz-options-container');
+            container.innerHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-4 rounded-2xl border-2 border-pink-100 hover:border-brand-pink bg-pink-50/20 hover:bg-pink-50 text-gray-700 font-bold text-sm md:text-base transition btn-bounce flex items-center justify-between group';
+                btn.onclick = () => selectOption(opt.score);
+
+                btn.innerHTML = `
+                    <span class="flex-1 pr-2">${opt.label}</span>
+                    <i class="fa-solid fa-chevron-right text-pink-300 group-hover:text-brand-pink transition"></i>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        // 選択肢タップ時
+        function selectOption(score) {
+            answers[currentQuestionIndex] = score;
+
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                showQuestion();
+            } else {
+                calculateResult();
+            }
+        }
+
+        // 前の質問へ戻る
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion();
+            }
+        }
+
+        // 診断結果集計 & 画面切り替え
+        function calculateResult() {
+            document.getElementById('screen-quiz').classList.add('hidden');
+            document.getElementById('screen-loading').classList.remove('hidden');
+
+            let selfScore = 0;  // 自己肯定感スコア（最大12点満点換算、各問最大1）
+            let otherScore = 0; // 他尊心スコア
+
+            questions.forEach((q, idx) => {
+                const score = answers[idx] !== undefined ? answers[idx] : 0.5;
+                if (q.category === 'self') {
+                    selfScore += score;
+                } else if (q.category === 'other') {
+                    otherScore += score;
+                }
+            });
+
+            // 閾値判定 (各カテゴリ6点満点中、3.0点以上を「高」とする)
+            const isSelfHigh = selfScore >= 3.0;
+            const isOtherHigh = otherScore >= 3.0;
+
+            let resultTypeKey = '';
+
+            if (isSelfHigh && isOtherHigh) {
+                resultTypeKey = 'satori';
+            } else if (isSelfHigh && !isOtherHigh) {
+                resultTypeKey = 'wolf';
+            } else if (!isSelfHigh && isOtherHigh) {
+                resultTypeKey = 'iiko';
+            } else {
+                resultTypeKey = 'harinezumi';
+            }
+
+            // 1.2秒後にローディング解除して結果表示
+            setTimeout(() => {
+                renderResult(resultTypeKey, isSelfHigh, isOtherHigh);
+                document.getElementById('screen-loading').classList.add('hidden');
+                document.getElementById('screen-result').classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 1200);
+        }
+
+        // 結果画面のレンダリング
+        function renderResult(typeKey, isSelfHigh, isOtherHigh) {
+            const data = typesData[typeKey];
+
+            document.getElementById('result-type-name').innerText = data.name;
+            document.getElementById('result-type-catch').innerText = data.catch;
+
+            // マトリクスラベル
+            document.getElementById('matrix-self-label').innerText = isSelfHigh ? '高（自分軸がある）' : '低（評価が気になる）';
+            document.getElementById('matrix-other-label').innerText = isOtherHigh ? '高（相手を認める）' : '低（警戒・境界線）';
+
+            // 画像設定（アップロードされた実際のイラスト画像データURLに書き換え可能）
+            const imgEl = document.getElementById('result-type-image');
+            imgEl.style.display = 'block';
+            
+            // アップロードされた画像ファイル（データURLや直接のファイルパス）をここに割り当てられます
+            // ※現在プレースホルダーのため、ローカル環境等で画像ファイル名（例: iiko.jpg など）に差し替えることでそのまま表示できます
+            const customImages = {
+                satori: '無題37_20261030182922.jpg',
+                wolf: '無題35_20261030182949.jpg',
+                iiko: '無題34_20261030183012.jpg',
+                harinezumi: '無題36_20261030182655.jpg'
+            };
+            imgEl.src = customImages[typeKey] || data.image;
+
+            // 解説・お悩み・アドバイス
+            document.getElementById('result-description').innerText = data.description;
+
+            const strugglesContainer = document.getElementById('result-struggles');
+            strugglesContainer.innerHTML = '';
+            data.struggles.forEach(item => {
+                const p = document.createElement('p');
+                p.className = 'text-xs md:text-sm text-gray-700 font-medium';
+                p.innerText = item;
+                strugglesContainer.appendChild(p);
+            });
+
+            document.getElementById('result-mikuru-advice').innerText = data.advice;
+        }
+
+        // SNSシェア機能
+        function shareResult() {
+            const typeName = document.getElementById('result-type-name').innerText;
+            const text = `みくるの「わたし軸チェック」をやってみました！\n私のコミュニケーションタイプは【${typeName}】でした🌸\n\n#わたし軸チェック #いい子ちゃん卒業 #コミュニケーション`;
+            const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+            window.open(shareUrl, '_blank');
+        }
+
+        // 診断リセット
+        function resetQuiz() {
+            document.getElementById('screen-result').classList.add('hidden');
+            document.getElementById('screen-start').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
